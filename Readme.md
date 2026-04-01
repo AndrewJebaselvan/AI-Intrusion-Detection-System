@@ -138,7 +138,7 @@ if score ≥ threshold → trigger alert system
 
 ### 1️⃣ Clone the repository
 
-```bash
+1️⃣ start cloning
 git clone https://github.com/YOUR_USERNAME/AI-Intrusion-Detection-System.git
 cd AI-Intrusion-Detection-System
 2️⃣ Create virtual environment
@@ -178,6 +178,7 @@ Multi-object tracking
 Face recognition
 IoT alert integration
 Cloud deployment
+---
 👨‍💻 Author
 
 P. Jeba Selvan Andrew
