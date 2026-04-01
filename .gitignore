@@ -1,0 +1,41 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+virt/
+virt310/
+venv/
+env/
+
+# Environment variables
+.env
+
+# Logs & outputs
+events.log
+*.log
+results/
+
+# Uploaded files
+uploads/
+
+# Model weights (if any local downloads)
+*.pt
+*.pth
+*.bin
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporary files
+*.tmp
+*.temp
