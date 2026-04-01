@@ -132,14 +132,6 @@ if score ≥ threshold → trigger alert system
 - Hugging Face Transformers (Local AI Model)  
 
 ---
-
-## 📸 Screenshots
-
-> *(Add screenshots here for better impact)*  
-- Dashboard  
-- Detection output  
-- AI query results  
-
 ---
 
 ## 🚀 Getting Started
