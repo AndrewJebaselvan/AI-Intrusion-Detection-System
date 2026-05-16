@@ -5,7 +5,7 @@
 <title>Edge AI Intrusion Detection – Research Dashboard</title>
 
 <style>
-/* --- SAME STYLES --- */
+
 html, body {
     margin: 0;
     padding: 0;
@@ -56,6 +56,8 @@ header h1 {
     border-radius: 10px;
     border: 2px solid #22c55e;
     box-shadow: 0 0 20px rgba(34,197,94,0.25);
+    object-fit: contain;
+    background: black;
 }
 
 #canvas {
@@ -92,25 +94,47 @@ header h1 {
     border-radius: 6px;
     font-weight: bold;
 }
-.low { background: #16a34a; }
-.medium { background: #f59e0b; }
-.high { background: #dc2626; }
+
+.low {
+    background: #16a34a;
+}
+
+.medium {
+    background: #f59e0b;
+}
+
+.high {
+    background: #dc2626;
+}
 
 button {
-    padding: 8px;
+    padding: 10px;
     border: none;
     border-radius: 6px;
     background: #22c55e;
     color: #020617;
     font-weight: bold;
     cursor: pointer;
+    margin-top: 8px;
+    width: 100%;
 }
+
 button:hover {
     background: #16a34a;
 }
 
+input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: white;
+    box-sizing: border-box;
+}
+
 #event-log {
-    height: 100px;
+    height: 120px;
     overflow-y: auto;
     background: #000;
     padding: 6px;
@@ -124,6 +148,13 @@ button:hover {
     background: #000;
     border-radius: 6px;
 }
+
+.status-text {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #94a3b8;
+}
+
 </style>
 </head>
 
@@ -131,6 +162,7 @@ button:hover {
 
 <header>
     <h1>Edge AI Intrusion Detection Research Console</h1>
+
     <div class="subheader">
         YOLOv8 | Context-Aware Threat Scoring | Edge AI
     </div>
@@ -138,138 +170,310 @@ button:hover {
 
 <div class="dashboard">
 
-<!-- VIDEO -->
-<div class="video-panel">
-    <img id="video" src="{{ url_for('video_feed') }}">
-    <canvas id="canvas"></canvas>
-</div>
+    <!-- VIDEO PANEL -->
+    <div class="video-panel">
 
-<!-- SIDE PANEL -->
-<div class="side-panel">
+        <img id="video"
+             src="{{ url_for('video_feed') }}">
 
-    <!-- THREAT -->
-    <div class="card">
-        <h3>Threat Assessment</h3>
-        <div class="metric"><span>Level</span><span id="level" class="badge low">NONE</span></div>
-        <div class="metric"><span>Score</span><span id="score">0</span></div>
+        <canvas id="canvas"></canvas>
+
     </div>
 
-    <!-- EXPLAINABILITY -->
-    <div class="card">
-        <h3>Explainable AI</h3>
-        <div class="metric"><span>Confidence</span><span id="confidence">0</span></div>
-        <div class="metric"><span>Persistence</span><span id="persistence">0</span></div>
-        <div class="metric"><span>Zone</span><span id="zone">N/A</span></div>
-        <div class="metric"><span>Reason</span><span id="reason">Monitoring</span></div>
+    <!-- SIDE PANEL -->
+    <div class="side-panel">
+
+        <!-- THREAT -->
+        <div class="card">
+
+            <h3>Threat Assessment</h3>
+
+            <div class="metric">
+                <span>Level</span>
+                <span id="level" class="badge low">NONE</span>
+            </div>
+
+            <div class="metric">
+                <span>Score</span>
+                <span id="score">0</span>
+            </div>
+
+        </div>
+
+        <!-- EXPLAINABILITY -->
+        <div class="card">
+
+            <h3>Explainable AI</h3>
+
+            <div class="metric">
+                <span>Confidence</span>
+                <span id="confidence">0</span>
+            </div>
+
+            <div class="metric">
+                <span>Persistence</span>
+                <span id="persistence">0</span>
+            </div>
+
+            <div class="metric">
+                <span>Zone</span>
+                <span id="zone">N/A</span>
+            </div>
+
+            <div class="metric">
+                <span>Reason</span>
+                <span id="reason">Monitoring</span>
+            </div>
+
+        </div>
+
+        <!-- PERFORMANCE -->
+        <div class="card">
+
+            <h3>Performance</h3>
+
+            <div class="metric">
+                <span>FPS</span>
+                <span id="fps">0</span>
+            </div>
+
+            <canvas id="fpsChart"></canvas>
+
+        </div>
+
+        <!-- VIDEO UPLOAD -->
+        <div class="card">
+
+            <h3>Upload Video</h3>
+
+            <input type="file"
+                   id="videoInput"
+                   accept="video/*"
+                   hidden>
+
+            <button onclick="document.getElementById('videoInput').click()">
+                Select Video
+            </button>
+
+            <button onclick="switchCamera()">
+                Switch Back To Live Camera
+            </button>
+
+            <p id="upload-status" class="status-text">
+                Live camera active
+            </p>
+
+        </div>
+
+        <!-- AI QUERY -->
+        <div class="card">
+
+            <h3>AI Query System</h3>
+
+            <input type="text"
+                   id="queryInput"
+                   placeholder="Ask about events...">
+
+            <button onclick="askAI()">
+                Ask AI
+            </button>
+
+            <p id="aiResponse"
+               class="status-text">
+            </p>
+
+        </div>
+
+        <!-- EVENT LOG -->
+        <div class="card">
+
+            <h3>Event Log</h3>
+
+            <div id="event-log"></div>
+
+        </div>
+
     </div>
 
-    <!-- PERFORMANCE -->
-    <div class="card">
-        <h3>Performance</h3>
-        <div class="metric"><span>FPS</span><span id="fps">0</span></div>
-        <canvas id="fpsChart"></canvas>
-    </div>
-
-    <!-- 📁 UPLOAD -->
-    <div class="card">
-        <h3>Upload Video</h3>
-
-        <input type="file" id="videoInput" hidden>
-
-        <button onclick="document.getElementById('videoInput').click()">
-            Select Video
-        </button>
-
-        <p id="upload-status">No file selected</p>
-    </div>
-
-    <!-- 🤖 AI QUERY SYSTEM -->
-    <div class="card">
-        <h3>AI Query System</h3>
-
-        <input type="text" id="queryInput"
-               placeholder="Ask about events..."
-               style="width:100%; padding:6px; margin-bottom:6px;">
-
-        <button onclick="askAI()">Ask</button>
-
-        <p id="aiResponse" style="margin-top:8px; font-size:13px;"></p>
-    </div>
-
-    <!-- EVENTS -->
-    <div class="card">
-        <h3>Event Log</h3>
-        <div id="event-log"></div>
-    </div>
-
-</div>
 </div>
 
 <script>
 
-/* ---------- UPLOAD ---------- */
-document.getElementById("videoInput").addEventListener("change", async () => {
-    let file = document.getElementById("videoInput").files[0];
+/* ---------------- VIDEO UPLOAD ---------------- */
+
+document.getElementById("videoInput")
+.addEventListener("change", async () => {
+
+    let file =
+        document.getElementById("videoInput").files[0];
+
+    if (!file) return;
 
     let formData = new FormData();
+
     formData.append("file", file);
 
-    document.getElementById("upload-status").innerText = "Uploading...";
+    document.getElementById("upload-status").innerText =
+        "Uploading and switching stream...";
 
-    await fetch("/upload", {
-        method: "POST",
-        body: formData
-    });
+    try {
 
-    document.getElementById("upload-status").innerText = "Processing complete";
+        let response = await fetch("/upload", {
+            method: "POST",
+            body: formData
+        });
+
+        let data = await response.json();
+
+        console.log(data);
+
+        document.getElementById("upload-status").innerText =
+            "Uploaded video now streaming";
+
+    } catch (err) {
+
+        console.error(err);
+
+        document.getElementById("upload-status").innerText =
+            "Upload failed";
+    }
 });
 
 
-/* ---------- AI QUERY ---------- */
+/* ---------------- SWITCH BACK TO CAMERA ---------------- */
+
+async function switchCamera(){
+
+    try {
+
+        await fetch("/use_camera", {
+            method: "POST"
+        });
+
+        document.getElementById("upload-status").innerText =
+            "Live camera restored";
+
+    } catch(err){
+
+        console.error(err);
+
+        document.getElementById("upload-status").innerText =
+            "Failed to switch camera";
+    }
+}
+
+
+/* ---------------- AI QUERY ---------------- */
+
 async function askAI(){
-    let query = document.getElementById("queryInput").value;
 
-    let res = await fetch("/ask", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({query: query})
-    });
+    let query =
+        document.getElementById("queryInput").value;
 
-    let data = await res.json();
+    if(query.trim() === "") return;
 
-    document.getElementById("aiResponse").innerText = data.answer;
+    try {
+
+        let res = await fetch("/ask", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                query: query
+            })
+        });
+
+        let data = await res.json();
+
+        document.getElementById("aiResponse").innerText =
+            data.answer;
+
+    } catch(err){
+
+        console.error(err);
+
+        document.getElementById("aiResponse").innerText =
+            "AI request failed";
+    }
 }
 
 
-/* ---------- ALERT STATUS ---------- */
+/* ---------------- ALERT STATUS ---------------- */
+
 function updateStatus(){
+
     fetch("/alert_status")
-    .then(res=>res.json())
-    .then(data=>{
-        document.getElementById("score").innerText=data.score;
-        document.getElementById("confidence").innerText=data.confidence;
-        document.getElementById("persistence").innerText=data.persistence;
-        document.getElementById("zone").innerText=data.zone;
-        document.getElementById("reason").innerText=data.reason;
-        document.getElementById("fps").innerText=data.fps;
-        document.getElementById("level").innerText=data.level;
 
-        let levelElem=document.getElementById("level");
-        levelElem.className="badge";
+    .then(res => res.json())
 
-        if(data.level==="HIGH") levelElem.classList.add("high");
-        else if(data.level==="MEDIUM") levelElem.classList.add("medium");
-        else levelElem.classList.add("low");
+    .then(data => {
 
-        if(data.level==="HIGH"){
-            let log=document.getElementById("event-log");
-            let time=new Date().toLocaleTimeString();
-            log.innerHTML = `[${time}] HIGH THREAT<br>` + log.innerHTML;
+        document.getElementById("score").innerText =
+            data.score;
+
+        document.getElementById("confidence").innerText =
+            data.confidence;
+
+        document.getElementById("persistence").innerText =
+            data.persistence;
+
+        document.getElementById("zone").innerText =
+            data.zone;
+
+        document.getElementById("reason").innerText =
+            data.reason;
+
+        document.getElementById("fps").innerText =
+            data.fps;
+
+        document.getElementById("level").innerText =
+            data.level;
+
+        let levelElem =
+            document.getElementById("level");
+
+        levelElem.className = "badge";
+
+        if(data.level === "HIGH"){
+
+            levelElem.classList.add("high");
+
+        } else if(data.level === "MEDIUM"){
+
+            levelElem.classList.add("medium");
+
+        } else {
+
+            levelElem.classList.add("low");
         }
+
+        if(data.level === "HIGH"){
+
+            let log =
+                document.getElementById("event-log");
+
+            let time =
+                new Date().toLocaleTimeString();
+
+            log.innerHTML =
+                `[${time}] HIGH THREAT DETECTED<br>`
+                + log.innerHTML;
+        }
+    })
+
+    .catch(err => {
+        console.error(err);
     });
 }
 
-setInterval(updateStatus,1000);
+
+/* ---------------- AUTO REFRESH ---------------- */
+
+setInterval(updateStatus, 1000);
 
 </script>
 
